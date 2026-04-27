@@ -40,6 +40,7 @@ export const authOptions: AuthOptions = {
       authorization: {
         params: {
           scope: "user-library-read user-follow-read user-follow-modify",
+          show_dialog: true,
         },
       },
     }),
