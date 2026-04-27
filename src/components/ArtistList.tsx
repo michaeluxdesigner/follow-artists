@@ -13,10 +13,17 @@ interface Artist {
 
 export function ArtistList() {
   const [artists, setArtists] = useState<Artist[]>([])
+  const [total, setTotal] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    // Fetch total count and full artist list simultaneously
+    fetch("/api/artists/count")
+      .then((r) => r.json())
+      .then((data) => setTotal(data.total))
+      .catch(() => {})
+
     fetch("/api/artists")
       .then((r) => {
         if (!r.ok) throw new Error("Failed to fetch")
@@ -40,9 +47,18 @@ export function ArtistList() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center gap-4 py-24 text-[#b3b3b3]">
-        <div className="w-8 h-8 border-2 border-[#1db954] border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm">Scanning your Spotify library…</p>
+      <div className="flex flex-col items-center gap-6 py-24 text-[#b3b3b3]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-[#1db954] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm">
+            {total !== null
+              ? `Scanning ${total.toLocaleString()} songs…`
+              : "Scanning your Spotify library…"}
+          </p>
+        </div>
+        <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+          <div className="h-full bg-[#1db954] rounded-full animate-[progress_2s_ease-in-out_infinite]" />
+        </div>
       </div>
     )
   }
