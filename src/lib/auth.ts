@@ -33,6 +33,7 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 }
 
 export const authOptions: AuthOptions = {
+  debug: true,
   providers: [
     SpotifyProvider({
       clientId: process.env.SPOTIFY_CLIENT_ID!,
@@ -40,7 +41,6 @@ export const authOptions: AuthOptions = {
       authorization: {
         params: {
           scope: "user-library-read user-follow-read user-follow-modify",
-          show_dialog: true,
         },
       },
     }),
@@ -48,7 +48,6 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
-        console.log("Spotify granted scopes:", account.scope)
         return {
           ...token,
           accessToken: account.access_token,
