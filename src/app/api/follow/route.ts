@@ -10,6 +10,16 @@ export async function POST(req: NextRequest) {
 
   const { id, follow } = await req.json()
 
+  console.log("Token prefix:", session.accessToken.slice(0, 20))
+  console.log("Artist ID:", id, "Follow:", follow)
+
+  // Verify the token works at all
+  const meRes = await fetch("https://api.spotify.com/v1/me", {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  })
+  const meData = await meRes.json()
+  console.log("GET /v1/me status:", meRes.status, "user:", meData.id)
+
   const res = await fetch(
     `https://api.spotify.com/v1/me/following?type=artist`,
     {
