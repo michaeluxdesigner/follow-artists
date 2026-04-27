@@ -14,11 +14,18 @@ export async function POST(req: NextRequest) {
     `https://api.spotify.com/v1/me/following?type=artist&ids=${id}`,
     {
       method: follow ? "PUT" : "DELETE",
-      headers: { Authorization: `Bearer ${session.accessToken}` },
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+        "Content-Type": "application/json",
+      },
     }
   )
 
-  return res.ok
-    ? NextResponse.json({ ok: true })
-    : NextResponse.json({ error: "Failed" }, { status: res.status })
+  if (!res.ok) {
+    const body = await res.text()
+    console.error(`Spotify follow error ${res.status}:`, body)
+    return NextResponse.json({ error: body }, { status: res.status })
+  }
+
+  return NextResponse.json({ ok: true })
 }

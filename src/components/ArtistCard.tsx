@@ -34,7 +34,11 @@ export function ArtistCard({ artist, rank, onFollowChange }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: artist.id, follow: newFollowing }),
       })
-      if (!res.ok) throw new Error()
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        console.error("Follow error:", res.status, body)
+        throw new Error()
+      }
       onFollowChange(artist.id, newFollowing)
     } catch {
       setIsFollowing(!newFollowing)
