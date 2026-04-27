@@ -11,13 +11,14 @@ export async function POST(req: NextRequest) {
   const { id, follow } = await req.json()
 
   const res = await fetch(
-    `https://api.spotify.com/v1/me/following?type=artist&ids=${id}`,
+    `https://api.spotify.com/v1/me/following?type=artist`,
     {
       method: follow ? "PUT" : "DELETE",
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
         "Content-Type": "application/json",
       },
+      body: JSON.stringify({ ids: [id] }),
     }
   )
 
