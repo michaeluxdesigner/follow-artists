@@ -65,24 +65,18 @@ export async function fetchArtistImages(
   return result
 }
 
-export async function checkFollowing(
-  accessToken: string,
-  ids: string[]
-): Promise<Map<string, boolean>> {
-  const result = new Map<string, boolean>()
+export async function fetchFollowedArtistIds(accessToken: string): Promise<Set<string>> {
+  const ids = new Set<string>()
+  let url: string | null =
+    "https://api.spotify.com/v1/me/following?type=artist&limit=50"
 
-  for (let i = 0; i < ids.length; i += 50) {
-    const batch = ids.slice(i, i + 50)
-    try {
-      const data: boolean[] = await spotifyGet(
-        `https://api.spotify.com/v1/me/following/contains?type=artist&ids=${batch.join(",")}`,
-        accessToken
-      )
-      batch.forEach((id, idx) => result.set(id, data[idx]))
-    } catch {
-      batch.forEach((id) => result.set(id, false))
+  while (url) {
+    const data = await spotifyGet(url, accessToken)
+    for (const artist of data.artists?.items ?? []) {
+      ids.add(artist.id)
     }
+    url = data.artists?.next ?? null
   }
 
-  return result
+  return ids
 }

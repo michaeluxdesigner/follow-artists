@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { fetchAllSavedTracks, fetchArtistImages, checkFollowing } from "@/lib/spotify"
+import { fetchAllSavedTracks, fetchArtistImages, fetchFollowedArtistIds } from "@/lib/spotify"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -12,9 +12,9 @@ export async function GET() {
   const artistMap = await fetchAllSavedTracks(session.accessToken)
   const artistIds = [...artistMap.keys()]
 
-  const [images, following] = await Promise.all([
+  const [images, followedIds] = await Promise.all([
     fetchArtistImages(session.accessToken, artistIds),
-    checkFollowing(session.accessToken, artistIds),
+    fetchFollowedArtistIds(session.accessToken),
   ])
 
   const artists = artistIds.map((id) => ({
@@ -22,7 +22,7 @@ export async function GET() {
     name: artistMap.get(id)!.name,
     songCount: artistMap.get(id)!.count,
     image: images.get(id) ?? null,
-    isFollowing: following.get(id) ?? false,
+    isFollowing: followedIds.has(id),
   }))
 
   artists.sort((a, b) => b.songCount - a.songCount)
